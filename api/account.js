@@ -39,8 +39,9 @@ const validState=s=>{
      !s.days||Array.isArray(s.days)||typeof s.mistakes!=='object'||!s.mistakes||Array.isArray(s.mistakes))return false;
   if(Object.keys(s.days).length>30||Object.keys(s.mistakes).length>500)return false;
   if(Object.keys(s.days).some(k=>!/^(?:[0-9]|[12][0-9])$/.test(k)))return false;
-  if(Object.values(s.days).some(d=>!d||typeof d!=='object'||d.answered!==15||
-   !Number.isInteger(d.correct)||d.correct<0||d.correct>15||d.wrong!==15-d.correct))return false;
+  if(Object.values(s.days).some(d=>!d||typeof d!=='object'||![15,30].includes(d.answered)||
+   !Number.isInteger(d.correct)||d.correct<0||d.correct>d.answered||d.wrong!==d.answered-d.correct||
+   (d.date==='2026-11-07'&&d.answered!==30)))return false;
   return true;
 };
 async function sessionUser(db,req){
