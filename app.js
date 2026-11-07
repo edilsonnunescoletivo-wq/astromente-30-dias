@@ -85,6 +85,42 @@
     ['orbita','O movimento da Terra ao redor do Sol se chama:',['Rotação','Translação','Vibração','Evaporação'],1,'Translação é o movimento da Terra ao redor do Sol.',3]
   ].map(([id,question,options,correct,explanation,level])=>({id:'q:'+id,kind:'quiz',question,options,correct,explanation,level}));
 
+
+  // Questões visuais de 4 anos: as figuras são ícones, sem necessidade de ler.
+  const PRESCHOOL_SETS={"color":[["vermelho","Vermelho","🔴"],["azul","Azul","🔵"],["amarelo","Amarelo","🟡"],["verde","Verde","🟢"],["roxo","Roxo","🟣"],["laranja","Laranja","🟠"],["preto","Preto","⚫"],["branco","Branco","⚪"],["marrom","Marrom","🟤"],["rosa","Rosa","🩷"]],"shape":[["circulo","Círculo","🟢"],["quadrado","Quadrado","🟦"],["triangulo","Triângulo","🔺"],["estrela","Estrela","⭐"],["coracao","Coração","❤️"],["losango","Losango","🔷"]],"number":[["n0","0","0"],["n1","1","1"],["n2","2","2"],["n3","3","3"],["n4","4","4"],["n5","5","5"],["n6","6","6"],["n7","7","7"],["n8","8","8"],["n9","9","9"]],"animal":[["leao","Leão","🦁"],["elefante","Elefante","🐘"],["gato","Gato","🐱"],["cachorro","Cachorro","🐶"],["panda","Panda","🐼"],["sapo","Sapo","🐸"],["macaco","Macaco","🐒"],["vaca","Vaca","🐮"],["porco","Porco","🐷"],["galinha","Galinha","🐔"],["pato","Pato","🦆"],["cavalo","Cavalo","🐴"],["coelho","Coelho","🐰"],["tartaruga","Tartaruga","🐢"],["cobra","Cobra","🐍"],["borboleta","Borboleta","🦋"],["abelha","Abelha","🐝"],["peixe","Peixe","🐟"],["golfinho","Golfinho","🐬"],["polvo","Polvo","🐙"],["caranguejo","Caranguejo","🦀"],["girafa","Girafa","🦒"],["zebra","Zebra","🦓"],["crocodilo","Crocodilo","🐊"],["ovelha","Ovelha","🐑"],["rato","Rato","🐭"],["coruja","Coruja","🦉"],["pinguim","Pinguim","🐧"],["peru","Peru","🦃"],["joaninha","Joaninha","🐞"],["morcego","Morcego","🦇"],["foca","Foca","🦭"]],"object":[["maca","Maçã","🍎"],["banana","Banana","🍌"],["morango","Morango","🍓"],["melancia","Melancia","🍉"],["uva","Uva","🍇"],["abacaxi","Abacaxi","🍍"],["cenoura","Cenoura","🥕"],["pao","Pão","🍞"],["ovo","Ovo","🥚"],["leite","Leite","🥛"],["onibus","Ônibus","🚌"],["carro","Carro","🚗"],["bicicleta","Bicicleta","🚲"],["aviao","Avião","✈️"],["trem","Trem","🚂"],["navio","Navio","🚢"],["balao","Balão","🎈"],["urso","Ursinho de pelúcia","🧸"],["bola","Bola","⚽"],["livros","Livros","📚"],["lapis","Lápis","✏️"],["coroa","Coroa","👑"],["guardachuva","Guarda-chuva","☂️"],["sol","Sol","☀️"],["lua","Lua","🌙"],["estrelaobj","Estrela","⭐"],["flor","Flor","🌼"],["casa","Casa","🏠"]]};
+  function makeVisual(topic,group,items){
+    return items.map(([key,label,art],i)=>{
+      const picks=[0,1,2,3].map(offset=>items[(i+offset)%items.length]);
+      const prompts={
+        color:()=> 'Onde está a cor '+label.toLowerCase()+'?',
+        shape:()=> 'Qual desenho é um '+label.toLowerCase()+'?',
+        number:()=> 'Onde está o número '+label+'?',
+        animal:()=> 'Qual destes animais é o '+label.toLowerCase()+'?',
+        object:()=> 'Onde está a figura de '+label.toLowerCase()+'?'
+      };
+      return {id:'v:'+topic+':'+key,kind:'visual',topic,group,question:prompts[topic](),
+        options:picks.map(x=>x[1]),art:picks.map(x=>x[2]),correct:0,
+        explanation:'Esta figura mostra '+label.toLowerCase()+'. Muito bem!'};
+    });
+  }
+  const PRESCHOOL=[
+    ...makeVisual('color','basics',PRESCHOOL_SETS.color),
+    ...makeVisual('shape','basics',PRESCHOOL_SETS.shape),
+    ...makeVisual('number','basics',PRESCHOOL_SETS.number),
+    ...makeVisual('animal','world',PRESCHOOL_SETS.animal),
+    ...makeVisual('object','world',PRESCHOOL_SETS.object),
+    ...[['Estrelas','⭐'],['Maçãs','🍎'],['Bolinhas','🟡'],['Flores','🌼']].flatMap(([title,picture],g)=>
+      [1,2,3,4,5].map(amount=>{
+        const alternatives=['1','2','3','4','5'].filter(n=>n!==String(amount)).slice(0,3).concat(String(amount));
+        return {id:'v:count:'+g+'-'+amount,kind:'visual',topic:'count',group:'basics',
+          question:'Quantas '+title.toLowerCase()+' você vê? '+picture.repeat(amount),
+          options:alternatives,art:alternatives,correct:3,
+          explanation:'Há '+amount+' '+title.toLowerCase()+'. Vamos contar juntos!'};
+      })
+    )
+  ];
+  const PRESCHOOL_PLAN=[['color',5],['shape',4],['number',4],['count',2],['animal',9],['object',6]];
+
   const $ = sel => document.querySelector(sel);
   const esc = value => String(value ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const todayISO = () => {let d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');};
@@ -161,11 +197,21 @@
   function remaining(){return Math.max(0,30-stats().count);}
   function mathPool(){let max=state.profile.age==='5-6'?5:state.profile.age==='10-12'?12:10;let result=[];for(let a=1;a<=max;a++){for(let b=1;b<=max;b++){result.push({id:`m:${a}x${b}`,kind:'math',a,b});}}return result;}
   function quizPool(){let level=state.profile.age==='5-6'?1:state.profile.age==='7-9'?2:3;return QUIZ.filter(q=>q.level<=level);}
-  function getQ(id){if(id.startsWith('q:'))return QUIZ.find(q=>q.id===id);if(id.startsWith('m:')){const m=id.match(/^m:(\d+)x(\d+)$/);return m?{id,kind:'math',a:Number(m[1]),b:Number(m[2])}:null;}return null;}
-  function optionData(id,day){let q=getQ(id);if(!q)return null;if(q.kind==='quiz')return {...q};let right=q.a*q.b;let proposed=[right,right+q.a,right-q.b,right+q.b,right-q.a,right+1,right-1,right+10,right-10,right+2];let options=[right];for(let n of proposed){if(n>0&&!options.includes(n))options.push(n);if(options.length===4)break;}let shuffled=seedSort(options.map(n=>({id:String(n),value:n})),`opt-${id}-${day}`);return {...q,question:`Quanto é ${q.a} × ${q.b}?`,options:shuffled.map(x=>String(x.value)),correct:shuffled.findIndex(x=>x.value===right),explanation:`${q.a} × ${q.b} = ${right}. Isso significa ${q.a} grupos de ${q.b}. Você pode somar ${q.b} ${q.a} vezes para conferir!`};}
-  function chooseQuestions(pool,kind,day,count,excluded=[]){const skipped=new Set(excluded);const due=Object.entries(state.mistakes||{}).filter(([id,item])=>item.nextDay<=day&&getQ(id)?.kind===kind&&!skipped.has(id)).map(([id])=>id);const selected=seedSort(due.map(id=>({id})),`due-${day}`).map(x=>x.id).slice(0,count);const available=seedSort(pool.filter(q=>!selected.includes(q.id)&&!skipped.has(q.id)),`new-${kind}-${day}`);const pastSeven=new Set(Object.values(state.days).slice(-7).flatMap(d=>d.questionIds||[]));const sorted=[...available.filter(q=>!pastSeven.has(q.id)),...available.filter(q=>pastSeven.has(q.id))];for(const q of sorted){if(selected.length>=count)break;selected.push(q.id);}return selected.map(id=>({id,kind,review:due.includes(id)}));}
-  function expandTodaySession(){const session=state.session;if(!session||session.day!==dayOf()||state.days[session.day])return;const chosen=new Set(session.questions.map(q=>q.id));const mathMissing=Math.max(0,DAILY_MATH-session.questions.filter(q=>q.kind==='math').length);const quizMissing=Math.max(0,DAILY_QUIZ-session.questions.filter(q=>q.kind==='quiz').length);if(!mathMissing&&!quizMissing)return;const extraMath=chooseQuestions(mathPool(),'math',session.day,mathMissing,chosen);const extraQuiz=chooseQuestions(quizPool(),'quiz',session.day,quizMissing,chosen);session.questions.push(...seedSort([...extraMath,...extraQuiz],`extra-${session.day}`));save();}
-  function startMission(){const day=dayOf();if(day<0||day>=30||state.days[day])return;if(!state.session||state.session.day!==day){let math=chooseQuestions(mathPool(),'math',day,DAILY_MATH);let quiz=chooseQuestions(quizPool(),'quiz',day,DAILY_QUIZ);state.session={day,questions:seedSort([...math,...quiz],`mix-${day}`),position:0,answers:[],selected:null};save();}else{expandTodaySession();}view='play';render();}
+  function getQ(id){if(id.startsWith('v:'))return PRESCHOOL.find(q=>q.id===id);if(id.startsWith('q:'))return QUIZ.find(q=>q.id===id);if(id.startsWith('m:')){const m=id.match(/^m:(\d+)x(\d+)$/);return m?{id,kind:'math',a:Number(m[1]),b:Number(m[2])}:null;}return null;}
+  function optionData(id,day){let q=getQ(id);if(!q)return null;if(q.kind==='quiz')return {...q};if(q.kind==='visual'){const order=seedSort(q.options.map((label,i)=>({id:String(i),label,art:q.art[i],right:i===q.correct})),`v-opt-${id}-${day}`);return {...q,options:order.map(x=>x.label),art:order.map(x=>x.art),correct:order.findIndex(x=>x.right)};}let right=q.a*q.b;let proposed=[right,right+q.a,right-q.b,right+q.b,right-q.a,right+1,right-1,right+10,right-10,right+2];let options=[right];for(let n of proposed){if(n>0&&!options.includes(n))options.push(n);if(options.length===4)break;}let shuffled=seedSort(options.map(n=>({id:String(n),value:n})),`opt-${id}-${day}`);return {...q,question:`Quanto é ${q.a} × ${q.b}?`,options:shuffled.map(x=>String(x.value)),correct:shuffled.findIndex(x=>x.value===right),explanation:`${q.a} × ${q.b} = ${right}. Isso significa ${q.a} grupos de ${q.b}. Você pode somar ${q.b} ${q.a} vezes para conferir!`};}
+  function chooseQuestions(pool,kind,day,count,excluded=[]){const skipped=new Set(excluded);const poolIds=new Set(pool.map(q=>q.id));const due=Object.entries(state.mistakes||{}).filter(([id,item])=>item.nextDay<=day&&getQ(id)?.kind===kind&&poolIds.has(id)&&!skipped.has(id)).map(([id])=>id);const selected=seedSort(due.map(id=>({id})),`due-${day}`).map(x=>x.id).slice(0,count);const available=seedSort(pool.filter(q=>!selected.includes(q.id)&&!skipped.has(q.id)),`new-${kind}-${day}`);const pastSeven=new Set(Object.values(state.days).slice(-7).flatMap(d=>d.questionIds||[]));const sorted=[...available.filter(q=>!pastSeven.has(q.id)),...available.filter(q=>pastSeven.has(q.id))];for(const q of sorted){if(selected.length>=count)break;selected.push(q.id);}return selected.map(id=>({id,kind,review:due.includes(id)}));}
+  function preschoolMission(day,existing=[]){
+    const chosen=new Set(existing.map(q=>q.id));const result=[];
+    for(const [topic,wanted] of PRESCHOOL_PLAN){
+      const current=existing.filter(q=>getQ(q.id)?.topic===topic).length;
+      const missing=Math.max(0,wanted-current);
+      const picked=chooseQuestions(PRESCHOOL.filter(q=>q.topic===topic),'visual',day,missing,[...chosen]);
+      result.push(...picked);picked.forEach(q=>chosen.add(q.id));
+    }
+    return result;
+  }
+  function expandTodaySession(){const session=state.session;if(!session||session.day!==dayOf()||state.days[session.day])return;const chosen=new Set(session.questions.map(q=>q.id));if(session.questions.some(q=>q.kind==='visual')||(session.questions.length===0&&state.profile.age==='4')){const extra=preschoolMission(session.day,session.questions);if(extra.length){session.questions.push(...seedSort(extra,`extra-${session.day}`));save();}return;}const mathMissing=Math.max(0,DAILY_MATH-session.questions.filter(q=>q.kind==='math').length);const quizMissing=Math.max(0,DAILY_QUIZ-session.questions.filter(q=>q.kind==='quiz').length);if(!mathMissing&&!quizMissing)return;const extraMath=chooseQuestions(mathPool(),'math',session.day,mathMissing,chosen);const extraQuiz=chooseQuestions(quizPool(),'quiz',session.day,quizMissing,chosen);session.questions.push(...seedSort([...extraMath,...extraQuiz],`extra-${session.day}`));save();}
+  function startMission(){const day=dayOf();if(day<0||day>=30||state.days[day])return;if(!state.session||state.session.day!==day){let questions;if(state.profile.age==='4'){questions=preschoolMission(day);}else{let math=chooseQuestions(mathPool(),'math',day,DAILY_MATH);let quiz=chooseQuestions(quizPool(),'quiz',day,DAILY_QUIZ);questions=[...math,...quiz];}state.session={day,questions:seedSort(questions,`mix-${day}`),position:0,answers:[],selected:null};save();}else{expandTodaySession();}view='play';render();}
   function respond(index){const s=state.session;if(!s||s.selected!==null)return;const item=s.questions[s.position];const q=optionData(item.id,s.day);if(!q||index<0||index>=q.options.length)return;const right=index===q.correct;s.selected=index;s.answers.push({id:item.id,kind:item.kind,correct:right,review:item.review,selected:index,answer:q.options[index],correctAnswer:q.options[q.correct]});if(right){delete state.mistakes[item.id];}else{const old=state.mistakes[item.id];state.mistakes[item.id]={nextDay:s.day+1,attempts:(old?.attempts||0)+1};}save();render();}
   function advance(){expandTodaySession();const s=state.session;if(!s||s.selected===null)return;if(s.position+1>=s.questions.length){finishMission();return;}s.position++;s.selected=null;save();render();}
   function finishMission(){const s=state.session;if(!s||s.answers.length!==s.questions.length)return;const correct=s.answers.filter(a=>a.correct).length;const dayRecord={date:todayISO(),answered:s.answers.length,correct,wrong:s.answers.length-correct,stars:s.answers.length*5+correct*5,questionIds:s.questions.map(q=>q.id),answers:s.answers,completedAt:new Date().toISOString()};state.days[s.day]=dayRecord;state.session=null;lastMission=dayRecord;save();view='finish';render();sparkle();}
