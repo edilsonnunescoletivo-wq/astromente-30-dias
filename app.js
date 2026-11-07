@@ -92,10 +92,10 @@
     return items.map(([key,label,art],i)=>{
       const picks=[0,1,2,3].map(offset=>items[(i+offset)%items.length]);
       const prompts={
-        color:()=> 'Onde está a cor '+label.toLowerCase()+'?',
-        shape:()=> 'Qual desenho é um '+label.toLowerCase()+'?',
+        color:()=> 'Onde está a cor '+({vermelho:'vermelha',amarelo:'amarela',roxo:'roxa',preto:'preta',branco:'branca'}[label.toLowerCase()]||label.toLowerCase())+'?',
+        shape:()=> 'Qual desenho é '+(label==='Estrela'?'uma ':'um ')+label.toLowerCase()+'?',
         number:()=> 'Onde está o número '+label+'?',
-        animal:()=> 'Qual destes animais é o '+label.toLowerCase()+'?',
+        animal:()=> 'Qual destes animais é '+(['vaca','galinha','tartaruga','cobra','borboleta','abelha','girafa','zebra','ovelha','coruja','joaninha','foca'].includes(label.toLowerCase())?'a ':'o ')+label.toLowerCase()+'?',
         object:()=> 'Onde está a figura de '+label.toLowerCase()+'?'
       };
       return {id:'v:'+topic+':'+key,kind:'visual',topic,group,question:prompts[topic](),
