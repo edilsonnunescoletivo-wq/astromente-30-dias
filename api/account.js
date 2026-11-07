@@ -33,7 +33,7 @@ const validState=s=>{
   if(!s||s.version!==1||typeof s!=='object'||Array.isArray(s))return false;
   const p=s.profile;
   if(!p||typeof p.nickname!=='string'||p.nickname.length<1||p.nickname.length>22||
-    !['5-6','7-9','10-12'].includes(p.age)||!['lumi','nina','tito','astro'].includes(p.avatar)||
+    !['4','5-6','7-9','10-12'].includes(p.age)||!['lumi','nina','tito','astro'].includes(p.avatar)||
     typeof p.reward!=='string'||p.reward.length>100)return false;
   if(!/^\d{4}-\d{2}-\d{2}$/.test(s.startDate)||typeof s.days!=='object'||
      !s.days||Array.isArray(s.days)||typeof s.mistakes!=='object'||!s.mistakes||Array.isArray(s.mistakes))return false;
