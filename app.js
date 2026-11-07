@@ -218,7 +218,20 @@
     notify('Relatório gerado. Guarde-o em um local seguro.');
   }
   function sparkle(){for(let i=0;i<28;i++){let s=document.createElement('span');s.className='confetti';s.textContent=['⭐','✦','🎉','💫'][i%4];s.style.left=(5+Math.random()*90)+'vw';s.style.animationDelay=(Math.random()*1.2)+'s';s.style.fontSize=(12+Math.random()*14)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),3500);}}
-  function render(){if(!cloud.ready){$('#app').innerHTML='<div class="splash">🚀 Preparando seu universo...</div>';return;}if(view==='login'){$('#app').innerHTML=loginScreen();return;}if(state?.session && state.session.day!==dayOf()){state.session=null;save();if(view==='play')view='home';}if(!state?.profile){$('#app').innerHTML=onboarding();return;}let body=view==='home'?home():view==='map'?mapView():view==='badges'?badges():view==='parents'?parents():view==='play'?questionScreen():view==='finish'?finish():view==='certificate'?certificate():home();$('#app').innerHTML=body;document.title=`${view==='play'?'Missão de hoje — ':''}AstroMente · 30 dias para brilhar`;}
+  // Migração pontual: reabrir somente missões de 15 respostas concluídas em 07/11/2026.
+  // Não altera outros dias nem missões de 30 respostas já finalizadas.
+  function reopenLegacyMission(){
+    if(!state?.days)return false;
+    for(const [index,record] of Object.entries(state.days)){
+      if(record?.date!=='2026-11-07'||record.answered!==15)continue;
+      delete state.days[index];
+      if(state.session?.day===Number(index))state.session=null;
+      if(lastMission?.date==='2026-11-07'&&lastMission.answered===15)lastMission=null;
+      return true;
+    }
+    return false;
+  }
+  function render(){if(!cloud.ready){$('#app').innerHTML='<div class="splash">🚀 Preparando seu universo...</div>';return;}if(reopenLegacyMission()){view='home';save();notify('A missão de 7/11 foi reaberta para você responder às 30 perguntas de hoje!');}if(view==='login'){$('#app').innerHTML=loginScreen();return;}if(state?.session && state.session.day!==dayOf()){state.session=null;save();if(view==='play')view='home';}if(!state?.profile){$('#app').innerHTML=onboarding();return;}let body=view==='home'?home():view==='map'?mapView():view==='badges'?badges():view==='parents'?parents():view==='play'?questionScreen():view==='finish'?finish():view==='certificate'?certificate():home();$('#app').innerHTML=body;document.title=`${view==='play'?'Missão de hoje — ':''}AstroMente · 30 dias para brilhar`;}
   document.addEventListener('click',e=>{let el=e.target.closest('[data-action]');if(!el)return;const action=el.dataset.action;
     if(action==='show-login'){view='login';render();return;}
     if(action==='new-account'){view='home';state=null;render();return;}
