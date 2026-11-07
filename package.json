@@ -1,0 +1,8 @@
+{
+  "name": "astromente-30-dias",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"test": "node --check app.js && node --check api/account.js && node --check install.js && node --check sw.js"},
+  "dependencies": {"@neondatabase/serverless": "1.2.0"}
+}

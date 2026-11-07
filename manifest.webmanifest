@@ -1,1 +1,25 @@
-{"id":"/","name":"AstroMente — Missão 30 dias","short_name":"AstroMente","lang":"pt-BR","start_url":"/","display":"standalone","background_color":"#151439","theme_color":"#151439","icons":[{"src":"/icon.svg","type":"image/svg+xml","sizes":"any","purpose":"any maskable"}]}
+{
+  "id": "/",
+  "name": "AstroMente — Missão 30 dias",
+  "short_name": "AstroMente",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#151439",
+  "theme_color": "#151439",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "description": "30 dias de jogos educativos, tabuada, quiz e aventuras com revisão dos erros."
+}
