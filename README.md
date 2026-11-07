@@ -5,7 +5,9 @@ Um jogo educativo infantil, em português, com **tabuada, quiz, revisão espaça
 ## Funcionalidades do protótipo
 
 - Missão diária com **20 contas de tabuada + 10 perguntas de quiz (30 perguntas)**, ao longo de 30 dias: até 900 perguntas novas/revisadas.
-- Dificuldade por faixa etária: 5–6, 7–9 e 10–12 anos.
+- Dificuldade por faixa etária: **4 anos**, 5–6, 7–9 e 10–12 anos.
+- **4 anos:** 30 perguntas com desenhos grandes e áudio, incluindo reconhecimento de cores (como vermelho), animais (como leão), formas, números, contagem e objetos. Sem tabuada, mantendo revisão dos erros.
+- **Demais idades:** 20 multiplicações e 10 perguntas de conhecimentos gerais por dia.
 - Correção explicada imediatamente após cada resposta.
 - Uma questão errada é agendada para **outro dia** e sai da lista de revisão ao ser acertada.
 - Mapa de 30 dias, estrelas, conquistas, painel para responsáveis e certificado digital ao concluir a jornada.
